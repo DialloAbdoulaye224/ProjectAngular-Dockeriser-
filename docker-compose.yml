@@ -1,0 +1,59 @@
+version: "3"
+
+services:
+  database:
+    container_name: mysqldb
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: testdb
+      MYSQL_USER: test
+      MYSQL_PASSWORD: test
+    ports:
+      - "3306:3306"
+    networks:
+      - mynetwork
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  backend:
+    container_name: spring-app
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/testdb?allowPublicKeyRetrieval=true&autoReconnect=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: test
+      SPRING_DATASOURCE_PASSWORD: test
+    build:
+      context: ./back
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    networks:
+      - mynetwork
+    depends_on:
+      - database
+    volumes:
+      - backend-data:/app/data
+
+  frontend:
+    container_name: angular-app
+    build:
+      context: ./front
+      dockerfile: Dockerfile
+    ports:
+      - "8081:80"
+    networks:
+      - mynetwork
+    depends_on:
+      - database
+      - backend
+    volumes:
+      - frontend-data:/app/data
+
+volumes:
+  mysql-data:
+  backend-data:
+  frontend-data:
+
+networks:
+  mynetwork:
+    driver: bridge

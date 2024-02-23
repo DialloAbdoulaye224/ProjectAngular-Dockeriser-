@@ -10,4 +10,5 @@ COPY . .
 
 FROM nginx:latest
 COPY nginx.conf /etc/nginx/nginx.conf
-EXPOSE 8000
+# COPY my-angular-project /usr/share/nginx/html
+EXPOSE 8081
